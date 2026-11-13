@@ -1,0 +1,6 @@
+{
+  "name": "ClipShare - Online Clipboard & Temporary Secure Notes",
+  "description": "Create temporary, password-protected notes and clips for fast, seamless text sharing across devices with QR codes, auto-expiry, and burn-after-reading protection.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
