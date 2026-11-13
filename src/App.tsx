@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar } from './components/Navbar';
 import { Editor } from './components/Editor';
 import { ViewClip } from './components/ViewClip';
@@ -24,6 +24,7 @@ export default function App() {
 
   // Quick hero retrieval code input
   const [heroCodeInput, setHeroCodeInput] = useState('');
+  const heroInputRef = useRef<HTMLInputElement>(null);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -204,12 +205,29 @@ export default function App() {
   const handleRetrieveHero = (e: React.FormEvent) => {
     e.preventDefault();
     const cleaned = heroCodeInput.trim().toLowerCase();
-    if (!cleaned) return;
+    if (!cleaned) {
+      navigateTo('retrieve');
+      return;
+    }
+
     let target = cleaned;
     if (cleaned.includes('/c/')) {
       const parts = cleaned.split('/c/');
-      target = parts[parts.length - 1].split('?')[0].split('#')[0];
+      target = parts[parts.length - 1].split('?')[0].split('#')[0].replace(/\/+$/, '');
+    } else if (cleaned.includes('?c=') || cleaned.includes('&c=')) {
+      const match = cleaned.match(/[?&]c=([a-z0-9_-]+)/);
+      if (match && match[1]) target = match[1];
+    } else if (cleaned.startsWith('c=')) {
+      target = cleaned.slice(2);
     }
+
+    target = target.replace(/^\/+|\/+$/g, '');
+    if (!target) {
+      addToast('Invalid clip code or URL', 'error');
+      heroInputRef.current?.focus();
+      return;
+    }
+
     navigateTo('view', target);
     setHeroCodeInput('');
   };
@@ -256,18 +274,24 @@ export default function App() {
             {/* Quick Retrieve Inline Widget */}
             <form
               onSubmit={handleRetrieveHero}
-              className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs shrink-0"
+              onClick={e => {
+                if ((e.target as HTMLElement).closest('button')) return;
+                heroInputRef.current?.focus();
+              }}
+              className="flex items-center gap-2 bg-white dark:bg-slate-900 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs shrink-0 cursor-text"
             >
               <input
+                ref={heroInputRef}
                 type="text"
                 value={heroCodeInput}
                 onChange={e => setHeroCodeInput(e.target.value)}
                 placeholder="Got a code? e.g. 7A9X"
-                className="w-32 sm:w-36 px-2.5 py-1.5 text-xs font-mono tracking-wider bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
+                aria-label="Enter clip code or link"
+                className="flex-1 min-w-[165px] sm:w-44 px-2.5 py-1.5 text-xs font-mono tracking-wider bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
               />
               <button
                 type="submit"
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white transition-colors flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <span>Open</span>
                 <ArrowRight className="w-3 h-3" />

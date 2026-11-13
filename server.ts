@@ -158,7 +158,7 @@ app.post('/api/clips', (req, res) => {
       imageData = null,
       password,
       expiresInSeconds,
-      burnAfterReading = false,
+      burnAfterReading = true,
       isReadOnly = false,
       syntax = 'plain'
     } = req.body;

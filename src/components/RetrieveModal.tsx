@@ -23,15 +23,19 @@ export const RetrieveModal: React.FC<RetrieveModalProps> = ({
       return;
     }
 
-    // Allow user to paste a full URL like https://domain.com/c/x9k2p4
+    // Allow user to paste a full URL like https://domain.com/c/x9k2p4 or ?c=x9k2p4
     let targetId = cleaned;
     if (cleaned.includes('/c/')) {
       const parts = cleaned.split('/c/');
-      targetId = parts[parts.length - 1].split('?')[0].split('#')[0];
+      targetId = parts[parts.length - 1].split('?')[0].split('#')[0].replace(/\/+$/, '');
+    } else if (cleaned.includes('?c=') || cleaned.includes('&c=')) {
+      const match = cleaned.match(/[?&]c=([a-z0-9_-]+)/);
+      if (match && match[1]) targetId = match[1];
     } else if (cleaned.startsWith('c=')) {
       targetId = cleaned.replace('c=', '');
     }
 
+    targetId = targetId.replace(/^\/+|\/+$/g, '');
     if (!targetId) {
       setError('Invalid clip URL or code');
       return;

@@ -66,8 +66,8 @@ export const Editor: React.FC<EditorProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Settings state
-  const [expiration, setExpiration] = useState<string>('86400'); // 24 hours default
-  const [burnAfterReading, setBurnAfterReading] = useState(false);
+  const [expiration, setExpiration] = useState<string>('86400'); // 24 hours fallback
+  const [burnAfterReading, setBurnAfterReading] = useState(true);
   const [enablePassword, setEnablePassword] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -752,11 +752,11 @@ export const Editor: React.FC<EditorProps> = ({
             >
               <option value="600">10 Minutes</option>
               <option value="3600">1 Hour</option>
-              <option value="86400">24 Hours (Default)</option>
+              <option value="86400">24 Hours</option>
               <option value="604800">7 Days</option>
               <option value="2592000">30 Days</option>
               <option value="never">Never (Persistent)</option>
-              <option value="burn">🔥 Burn after reading (View once)</option>
+              <option value="burn">🔥 Burn after reading (View once · Default)</option>
             </select>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               {burnAfterReading
